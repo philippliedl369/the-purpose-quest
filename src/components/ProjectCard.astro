@@ -1,0 +1,74 @@
+---
+import Landscape from './Landscape.astro';
+import type { Project } from '../data/projects';
+import { url } from '../lib/url';
+
+interface Props {
+  project: Project;
+}
+const { project } = Astro.props;
+---
+
+<a class="card" href={url(`/projects/${project.slug}/`)}>
+  <div class="card__media">
+    <Landscape class="card__art" />
+  </div>
+  <div class="card__body">
+    <div class="card__meta">
+      <span class="badge">{project.status}</span>
+      <span class="small muted">{project.place}</span>
+    </div>
+    <h3>{project.title}</h3>
+    <p class="muted">{project.summary}</p>
+    <span class="link-arrow">Read the project <span aria-hidden="true">→</span></span>
+  </div>
+</a>
+
+<style>
+  .card {
+    display: grid;
+    background: var(--canvas);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    text-decoration: none;
+    color: var(--ink);
+    transition: border-color 160ms ease, transform 200ms ease, box-shadow 200ms ease;
+  }
+  .card:hover {
+    border-color: var(--ink-subtle);
+    transform: translateY(-2px);
+    box-shadow: 0 18px 40px -24px rgb(28 43 33 / 0.35);
+  }
+  .card__media {
+    aspect-ratio: 16 / 9;
+    background: var(--surface);
+  }
+  .card__art {
+    width: 100%;
+    height: 100%;
+  }
+  .card__body {
+    padding: 1.5rem 1.5rem 1.75rem;
+    display: grid;
+    gap: 0.75rem;
+    align-content: start;
+  }
+  .card__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--leaf);
+  }
+  .card h3 {
+    font-size: clamp(1.45rem, 1.2rem + 0.9vw, 1.85rem);
+  }
+  .card p {
+    margin: 0;
+  }
+  .link-arrow {
+    justify-self: start;
+    margin-top: 0.4rem;
+  }
+</style>

@@ -1,0 +1,180 @@
+---
+import { zones } from '../data/living-place';
+
+// Concentric arcs around the houses: the further out, the less water and care a zone needs.
+const cx = 500;
+const cy = 470;
+const radii = [110, 190, 270, 345, 420];
+const arc = (r: number) => `M${cx - r} ${cy} A${r} ${r} 0 0 1 ${cx + r} ${cy} Z`;
+---
+
+<figure class="figure zones">
+  <div class="zones__grid">
+    <div class="figure__frame zones__frame">
+      <svg viewBox="0 0 1000 490" role="img" aria-labelledby="zones-title">
+        <title id="zones-title">Zones ordered by dry-season water, from the houses outward</title>
+        {
+          [...zones].reverse().map((z, i) => (
+            <path d={arc(radii[zones.length - 1 - i])} fill={z.color} />
+          ))
+        }
+        {zones.map((z, i) => {
+          const r = radii[i];
+          const inner = i === 0 ? 0 : radii[i - 1];
+          const labelR = (r + inner) / 2;
+          // Numbers run along a diagonal on the left so they never collide with the house.
+          return (
+            <text
+              x={cx - labelR * 0.819}
+              y={cy - labelR * 0.574 + 10}
+              text-anchor="middle"
+              class={i >= 3 ? 'zones__num zones__num--light' : 'zones__num'}
+            >
+              {i + 1}
+            </text>
+          );
+        })}
+        <g class="zones__house" transform={`translate(${cx - 34} ${cy - 62})`}>
+          <path d="M6 30 L34 8 L62 30 L62 60 L6 60 Z" />
+          <rect x="28" y="40" width="12" height="20" class="zones__door" />
+        </g>
+        <line x1="40" x2="960" y1={cy} y2={cy} class="zones__ground" />
+        <g class="zones__water">
+          <path d="M24 34 q13 -22 26 0 a13 13 0 1 1 -26 0z" />
+          <text x="62" y="44">Outward: less water, less care</text>
+        </g>
+      </svg>
+    </div>
+    <ol class="zones__list">
+      {
+        zones.map((z, i) => (
+          <li>
+            <span class="zones__swatch" style={`background:${z.color}`} aria-hidden="true">
+              {i + 1}
+            </span>
+            <div>
+              <h3>{z.name}</h3>
+              <p>{z.what}</p>
+              <dl>
+                <div>
+                  <dt>Water</dt>
+                  <dd>{z.water}</dd>
+                </div>
+                <div>
+                  <dt>Care</dt>
+                  <dd>{z.care}</dd>
+                </div>
+              </dl>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+  <figcaption>
+    A design proposal, not a plan for a specific site. The size of each zone depends on how much water is left at the
+    end of the dry season and how much open land may legally be farmed. <span class="estimate">Estimate</span>
+  </figcaption>
+</figure>
+
+<style>
+  .zones__grid {
+    display: grid;
+    gap: clamp(1.5rem, 1rem + 2vw, 3rem);
+    align-items: start;
+  }
+  @media (min-width: 900px) {
+    .zones__grid {
+      grid-template-columns: 1.1fr 1fr;
+    }
+    .zones__frame {
+      position: sticky;
+      top: 6rem;
+    }
+  }
+  svg {
+    width: 100%;
+    height: auto;
+    font-family: var(--font-body);
+  }
+  .zones__num {
+    font-family: var(--font-display);
+    font-size: 40px;
+    fill: var(--ink);
+  }
+  .zones__num--light {
+    fill: var(--on-band);
+  }
+  .zones__house path {
+    fill: var(--canvas);
+    stroke: var(--ink);
+    stroke-width: 3;
+    stroke-linejoin: round;
+  }
+  .zones__door {
+    fill: var(--ink);
+  }
+  .zones__ground {
+    stroke: var(--ink);
+    stroke-width: 2;
+  }
+  .zones__water path {
+    fill: var(--water);
+  }
+  .zones__water text {
+    font-size: 26px;
+    font-style: italic;
+    fill: var(--ink-muted);
+  }
+  .zones__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--hairline-strong);
+  }
+  .zones__list li {
+    display: grid;
+    grid-template-columns: 2.25rem 1fr;
+    gap: 1rem;
+    padding: 1.25rem 0;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .zones__swatch {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    color: var(--on-band);
+  }
+  .zones__list li:nth-child(-n + 3) .zones__swatch {
+    color: var(--ink);
+  }
+  .zones__list h3 {
+    margin-bottom: 0.35rem;
+  }
+  .zones__list p {
+    color: var(--ink-muted);
+    margin-bottom: 0.6rem;
+  }
+  dl {
+    display: grid;
+    gap: 0.25rem;
+    margin: 0;
+    font-size: var(--text-small);
+  }
+  dl div {
+    display: grid;
+    grid-template-columns: 3.5rem 1fr;
+    gap: 0.5rem;
+  }
+  dt {
+    font-weight: 600;
+  }
+  dd {
+    margin: 0;
+    color: var(--ink-muted);
+  }
+</style>

@@ -1,0 +1,31 @@
+---
+import Base from '../../layouts/Base.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { projects } from '../../data/projects';
+---
+
+<Base title="Projects" description="Projects and concepts on The Purpose Quest.">
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">Projects</p>
+        <h1>Projects &amp; <em>concepts</em></h1>
+        <p class="lede">Each project is researched before anything is decided, and every page says what is still open.</p>
+      </div>
+      <div class="projects">
+        {projects.map((p) => <ProjectCard project={p} />)}
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  h1 em {
+    color: var(--clay);
+  }
+  .projects {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr));
+  }
+</style>

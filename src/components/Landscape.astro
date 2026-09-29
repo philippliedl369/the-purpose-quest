@@ -1,0 +1,174 @@
+---
+// Decorative dry-season landscape: layered hills, flowering trees, garden rows and a pond.
+// Hills are generated from sine sums so trees sit exactly on the ridgelines.
+interface Props {
+  variant?: 'day' | 'dusk';
+  class?: string;
+}
+
+const { variant = 'day', class: className } = Astro.props;
+
+const palettes = {
+  day: {
+    sky: ['#efd6a6', '#f3e6cc', '#f4eee2'],
+    sun: '#eebb55',
+    sunAt: [1170, 345],
+    far: '#c5cdb0',
+    mid: '#94aa6d',
+    near: '#5f7e3f',
+    front: '#33502f',
+    rows: '#86a15a',
+    pond: '#c9dcd6',
+    green: ['#4f6f37', '#3f5f31', '#6b8a45'],
+    trunk: '#3a3a2a',
+  },
+  dusk: {
+    sky: ['#15271d', '#2b3f2e', '#b8793f'],
+    sun: '#e3a72f',
+    sunAt: [860, 350],
+    far: '#46604a',
+    mid: '#33503a',
+    near: '#24402d',
+    front: '#1b3024',
+    rows: '#3f6246',
+    pond: '#7d9690',
+    green: ['#2f5236', '#3b6040', '#27452d'],
+    trunk: '#132017',
+  },
+} as const;
+const p = palettes[variant];
+
+const W = 1600;
+const H = 800;
+type Wave = { base: number; waves: [number, number, number][] };
+const layers: Record<'far' | 'mid' | 'near' | 'front', Wave> = {
+  far: { base: 395, waves: [[34, 0.0041, 0.5], [16, 0.0112, 1.3]] },
+  mid: { base: 500, waves: [[30, 0.0052, 2.1], [13, 0.0131, 0.2]] },
+  near: { base: 612, waves: [[24, 0.0037, 4.0], [9, 0.0168, 2.5]] },
+  front: { base: 706, waves: [[12, 0.006, 1.0], [5, 0.021, 0.3]] },
+};
+const y = (l: Wave, x: number) => l.base + l.waves.reduce((s, [a, f, ph]) => s + a * Math.sin(x * f + ph), 0);
+const hillPath = (l: Wave, step = 16) => {
+  let d = `M0 ${y(l, 0).toFixed(1)}`;
+  for (let x = step; x <= W; x += step) d += ` L${x} ${y(l, x).toFixed(1)}`;
+  return `${d} L${W} ${H} L0 ${H} Z`;
+};
+const offsetPath = (l: Wave, dy: number, x0: number, x1: number, step = 12) => {
+  let d = `M${x0} ${(y(l, x0) + dy).toFixed(1)}`;
+  for (let x = x0 + step; x <= x1; x += step) d += ` L${x} ${(y(l, x) + dy).toFixed(1)}`;
+  return d;
+};
+
+// Deterministic pseudo-random so the picture is identical on every build.
+let seed = 7;
+const rand = () => ((seed = (seed * 9301 + 49297) % 233280) / 233280);
+
+type Tree = { x: number; y: number; h: number; r: number; kind: 'bloom' | 'blossom' | 'green' | 'bare' };
+const place = (l: Wave, xs: number[], scale: number, kinds: Tree['kind'][]): Tree[] =>
+  xs.map((x, i) => ({
+    x,
+    y: y(l, x) + 6 * scale,
+    h: (28 + rand() * 18) * scale,
+    r: (13 + rand() * 7) * scale,
+    kind: kinds[i % kinds.length],
+  }));
+
+const midTrees = place(
+  layers.mid,
+  [60, 150, 210, 330, 420, 610, 700, 760, 900, 1010, 1090, 1260, 1330, 1440, 1540],
+  0.8,
+  ['green', 'bloom', 'green', 'bare', 'blossom', 'green', 'bloom', 'green', 'green', 'blossom', 'green', 'bloom', 'bare', 'green', 'bloom'],
+);
+const nearTrees = place(
+  layers.near,
+  [40, 175, 300, 640, 760, 1500, 1580],
+  1.35,
+  ['green', 'bloom', 'green', 'blossom', 'green', 'bloom', 'green'],
+);
+
+const canopyColor = (t: Tree, i: number) =>
+  t.kind === 'bloom' ? (i % 2 ? '#e3a72f' : '#f0c04e') : t.kind === 'blossom' ? (i % 2 ? '#d27c9f' : '#e3a0ba') : p.green[i % p.green.length];
+
+const rows = [14, 30, 46, 62].map((dy) => offsetPath(layers.near, dy, 860, 1420));
+const skyId = `sky-${variant}`;
+const glowId = `glow-${variant}`;
+---
+
+<svg
+  class={className}
+  viewBox={`0 0 ${W} ${H}`}
+  preserveAspectRatio="xMidYMax slice"
+  aria-hidden="true"
+  focusable="false"
+>
+  <defs>
+    <linearGradient id={skyId} x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color={p.sky[0]}></stop>
+      <stop offset="0.55" stop-color={p.sky[1]}></stop>
+      <stop offset="1" stop-color={p.sky[2]}></stop>
+    </linearGradient>
+    <radialGradient id={glowId}>
+      <stop offset="0" stop-color={p.sun} stop-opacity="0.55"></stop>
+      <stop offset="1" stop-color={p.sun} stop-opacity="0"></stop>
+    </radialGradient>
+  </defs>
+
+  <rect width={W} height={H} fill={`url(#${skyId})`}></rect>
+  <circle cx={p.sunAt[0]} cy={p.sunAt[1]} r="200" fill={`url(#${glowId})`}></circle>
+  <circle cx={p.sunAt[0]} cy={p.sunAt[1]} r="66" fill={p.sun}></circle>
+
+  <g fill="none" stroke={p.trunk} stroke-width="3" stroke-linecap="round" opacity="0.55">
+    <path d="M318 290 q10 -8 20 0 q10 -8 20 0"></path>
+    <path d="M378 322 q7 -6 14 0 q7 -6 14 0"></path>
+  </g>
+
+  <path d={hillPath(layers.far)} fill={p.far}></path>
+  <path d={hillPath(layers.mid)} fill={p.mid}></path>
+
+  {
+    midTrees.map((t, i) => (
+      <g>
+        <path d={`M${t.x} ${t.y} L${t.x} ${t.y - t.h}`} stroke={p.trunk} stroke-width={2.2} stroke-linecap="round"></path>
+        {t.kind === 'bare' ? (
+          <path
+            d={`M${t.x} ${t.y - t.h * 0.6} l${-t.r * 0.8} ${-t.r * 0.9} M${t.x} ${t.y - t.h * 0.75} l${t.r * 0.85} ${-t.r * 0.8} M${t.x} ${t.y - t.h} l${-t.r * 0.3} ${-t.r * 0.7}`}
+            stroke={p.trunk}
+            stroke-width={1.6}
+            stroke-linecap="round"
+            fill="none"
+          ></path>
+        ) : (
+          <g>
+            <circle cx={t.x - t.r * 0.55} cy={t.y - t.h + 2} r={t.r * 0.8} fill={canopyColor(t, i)}></circle>
+            <circle cx={t.x + t.r * 0.6} cy={t.y - t.h + 3} r={t.r * 0.75} fill={canopyColor(t, i + 1)}></circle>
+            <circle cx={t.x} cy={t.y - t.h - t.r * 0.45} r={t.r} fill={canopyColor(t, i)}></circle>
+          </g>
+        )}
+      </g>
+    ))
+  }
+
+  <path d={hillPath(layers.near)} fill={p.near}></path>
+  <g fill="none" stroke={p.rows} stroke-width="3" stroke-linecap="round" stroke-dasharray="2 9">
+    {rows.map((d) => <path d={d}></path>)}
+  </g>
+
+  {
+    nearTrees.map((t, i) => (
+      <g>
+        <path d={`M${t.x} ${t.y} L${t.x} ${t.y - t.h}`} stroke={p.trunk} stroke-width={3.2} stroke-linecap="round"></path>
+        <circle cx={t.x - t.r * 0.55} cy={t.y - t.h + 3} r={t.r * 0.8} fill={canopyColor(t, i)}></circle>
+        <circle cx={t.x + t.r * 0.6} cy={t.y - t.h + 4} r={t.r * 0.75} fill={canopyColor(t, i + 1)}></circle>
+        <circle cx={t.x} cy={t.y - t.h - t.r * 0.45} r={t.r} fill={canopyColor(t, i)}></circle>
+      </g>
+    ))
+  }
+
+  <ellipse cx="470" cy={y(layers.near, 470) + 58} rx="150" ry="20" fill={p.pond}></ellipse>
+  <g stroke="#ffffff" stroke-opacity="0.55" stroke-width="2" stroke-linecap="round">
+    <path d={`M400 ${y(layers.near, 470) + 54} h60`}></path>
+    <path d={`M480 ${y(layers.near, 470) + 62} h44`}></path>
+  </g>
+
+  <path d={hillPath(layers.front)} fill={p.front}></path>
+</svg>

@@ -1,0 +1,98 @@
+---
+import { url } from '../lib/url';
+
+const path = Astro.url.pathname.replace(import.meta.env.BASE_URL.replace(/\/$/, ''), '') || '/';
+const nav = [
+  { href: '/projects/', label: 'Projects' },
+  { href: '/#approach', label: 'Approach' },
+];
+const isActive = (href: string) => href !== '/#approach' && path.startsWith(href.replace(/\/$/, ''));
+---
+
+<header class="site-header">
+  <div class="container site-header__inner">
+    <a class="wordmark" href={url('/')} aria-label="The Purpose Quest, home">
+      <svg class="wordmark__mark" viewBox="0 0 32 32" aria-hidden="true">
+        <circle cx="16" cy="12.5" r="5" fill="var(--bloom)"></circle>
+        <path d="M3 27c4.5-6 9-8.8 13-8.8S24.5 21 29 27z" fill="currentColor"></path>
+      </svg>
+      <span>The Purpose <em>Quest</em></span>
+    </a>
+    <nav aria-label="Main">
+      <ul>
+        {
+          nav.map((item) => (
+            <li>
+              <a href={url(item.href)} aria-current={isActive(item.href) ? 'page' : undefined}>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgb(244 238 226 / 0.86);
+    backdrop-filter: saturate(1.4) blur(12px);
+    -webkit-backdrop-filter: saturate(1.4) blur(12px);
+    border-bottom: 1px solid var(--hairline);
+  }
+  .site-header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 4.25rem;
+  }
+  .wordmark {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    text-decoration: none;
+    font-family: var(--font-display);
+    font-size: 1.28rem;
+    font-weight: 450;
+    letter-spacing: -0.01em;
+    font-variation-settings: 'SOFT' 60;
+    color: var(--forest);
+    white-space: nowrap;
+  }
+  .wordmark em {
+    font-style: italic;
+    font-variation-settings: 'SOFT' 100, 'WONK' 1;
+  }
+  .wordmark__mark {
+    width: 1.7rem;
+    height: 1.7rem;
+  }
+  ul {
+    display: flex;
+    gap: clamp(1rem, 0.5rem + 2vw, 2rem);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  nav a {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--ink-muted);
+    text-decoration: none;
+    padding-block: 0.4rem;
+    border-bottom: 1px solid transparent;
+  }
+  nav a:hover,
+  nav a[aria-current='page'] {
+    color: var(--ink);
+    border-bottom-color: currentColor;
+  }
+  @media (max-width: 420px) {
+    .wordmark span { font-size: 1.08rem; }
+  }
+</style>

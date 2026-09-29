@@ -1,0 +1,117 @@
+---
+import { rainfall } from '../data/living-place';
+
+const rows = [...rainfall].sort((a, b) => a.mm - b.mm);
+const max = 3200;
+// The bar shares its row with the value label, so it scales within the remaining width.
+const barWidth = (mm: number) => `calc((100% - 6rem) * ${(mm / max).toFixed(3)})`;
+---
+
+<figure class="figure rain">
+  <div class="figure__frame">
+    <ul class="rain__list" role="list">
+      {
+        rows.map((r) => (
+          <li class={`rain__row rain__row--${r.side}`}>
+            <div class="rain__label">
+              <span class="rain__region">{r.region}</span>
+              <span class="rain__dry num">
+                {r.dryMonths === 0 ? 'no dry season' : `${r.dryMonths} dry months`}
+              </span>
+            </div>
+            <div class="rain__track">
+              <span class="rain__bar" style={`width:${barWidth(r.mm)}`}></span>
+              <span class="rain__value num">{r.mm.toLocaleString('en-US')} mm</span>
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+    <div class="rain__legend small" aria-hidden="true">
+      <span><i class="rain__key rain__key--dry"></i> Dry Pacific</span>
+      <span><i class="rain__key rain__key--humid"></i> Humid inland</span>
+    </div>
+  </div>
+  <figcaption>
+    Annual rainfall and dry months by climate region, from Costa Rica’s national weather service IMN (high
+    confidence). What separates the regions is less the annual total than the length of the dry season.
+  </figcaption>
+</figure>
+
+<style>
+  .rain__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1.1rem;
+  }
+  .rain__row {
+    display: grid;
+    gap: 0.45rem;
+  }
+  @media (min-width: 720px) {
+    .rain__row {
+      grid-template-columns: 17rem 1fr;
+      align-items: center;
+      gap: 1.25rem;
+    }
+  }
+  .rain__label {
+    display: flex;
+    flex-direction: column;
+  }
+  .rain__region {
+    font-weight: 600;
+    font-size: 0.975rem;
+    color: var(--on-band);
+  }
+  .rain__dry {
+    font-size: 0.85rem;
+    color: var(--on-band-muted);
+  }
+  .rain__track {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .rain__bar {
+    display: block;
+    height: 14px;
+    border-radius: 999px;
+    min-width: 2rem;
+    flex: none;
+  }
+  .rain__row--dry .rain__bar {
+    background: var(--bloom);
+  }
+  .rain__row--humid .rain__bar {
+    background: #7fb3b8;
+  }
+  .rain__value {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--on-band);
+    white-space: nowrap;
+  }
+  .rain__legend {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+    color: var(--on-band-muted);
+  }
+  .rain__key {
+    display: inline-block;
+    width: 0.8rem;
+    height: 0.8rem;
+    border-radius: 50%;
+    margin-right: 0.35rem;
+    vertical-align: -0.05rem;
+  }
+  .rain__key--dry {
+    background: var(--bloom);
+  }
+  .rain__key--humid {
+    background: #7fb3b8;
+  }
+</style>

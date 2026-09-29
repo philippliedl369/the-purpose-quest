@@ -1,0 +1,191 @@
+---
+import { stages } from '../data/living-place';
+
+const years = Array.from({ length: 11 }, (_, i) => i);
+const pos = (y: number) => `${(y / 10) * 100}%`;
+const span = ([a, b]: readonly [number, number]) => `left:${pos(a)};width:${((b - a) / 10) * 100}%`;
+---
+
+<figure class="figure stages">
+  <div class="figure__frame">
+    <div class="stages__inner">
+      <div class="stages__axis" aria-hidden="true">
+        <span class="stages__axis-label">Year</span>
+        <div class="stages__ticks">
+          {years.map((y) => <span style={`left:${pos(y)}`}>{y}</span>)}
+        </div>
+      </div>
+      <ul class="stages__list" role="list">
+        {
+          stages.map((s) => (
+            <li class="stages__row">
+              <div class="stages__label">
+                <strong>{s.label}</strong>
+                {s.estimate && <span class="estimate">Estimate</span>}
+              </div>
+              <div class="stages__track">
+                {s.partial && (
+                  <span class="stages__bar stages__bar--partial" style={span(s.partial)}>
+                    <span>{s.partialNote}</span>
+                  </span>
+                )}
+                <span class="stages__bar stages__bar--full" style={span(s.full)}>
+                  <span>{s.fullNote}</span>
+                </span>
+              </div>
+              <p class="stages__notes">
+                {s.partial && (
+                  <span>
+                    <i class="stages__key stages__key--partial" aria-hidden="true" /> Years {s.partial[0]}–{s.partial[1]}: {s.partialNote}
+                  </span>
+                )}
+                <span>
+                  <i class="stages__key stages__key--full" aria-hidden="true" /> From year {s.full[0]}: {s.fullNote}
+                </span>
+              </p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+  <figcaption>
+    Years after the first planting. Harvest times are general values for each species, not measurements from a
+    specific site. Staple foods (maize, beans, roots) depend most on how much open land a site offers.
+  </figcaption>
+</figure>
+
+<style>
+  .stages__axis,
+  .stages__row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.6rem;
+  }
+  .stages__axis-label {
+    display: none;
+  }
+  .stages__notes {
+    display: grid;
+    gap: 0.2rem;
+    margin: 0;
+    font-size: 0.82rem;
+    color: var(--ink-muted);
+  }
+  .stages__key {
+    display: inline-block;
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 50%;
+    margin-right: 0.3rem;
+    vertical-align: -0.05rem;
+  }
+  .stages__key--full {
+    background: var(--leaf);
+  }
+  .stages__key--partial {
+    background: rgb(92 122 50 / 0.35);
+  }
+  .stages__bar span {
+    display: none;
+  }
+  @media (min-width: 720px) {
+    .stages__axis,
+    .stages__row {
+      grid-template-columns: 11rem 1fr;
+      gap: 1rem;
+      align-items: center;
+    }
+    .stages__axis-label {
+      display: block;
+    }
+    .stages__notes {
+      display: none;
+    }
+    .stages__bar span {
+      display: inline;
+    }
+  }
+  .stages__axis {
+    margin-bottom: 0.9rem;
+  }
+  .stages__axis-label {
+    grid-column: 1;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+  .stages__ticks {
+    position: relative;
+    height: 1.2rem;
+    margin-right: 1rem;
+  }
+  .stages__ticks span {
+    position: absolute;
+    transform: translateX(-50%);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--ink-muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .stages__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--hairline-strong);
+  }
+  .stages__row {
+    padding-block: 1rem;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .stages__label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+  .stages__track {
+    position: relative;
+    height: 2.4rem;
+    margin-right: 1rem;
+    background-image: linear-gradient(to right, var(--hairline) 1px, transparent 1px);
+    background-size: 10% 100%;
+  }
+  .stages__bar {
+    position: absolute;
+    top: 0.2rem;
+    bottom: 0.2rem;
+    display: flex;
+    align-items: center;
+    padding-inline: 0.7rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 550;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .stages__bar > span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .stages__bar--partial {
+    background: repeating-linear-gradient(
+      -45deg,
+      rgb(92 122 50 / 0.28),
+      rgb(92 122 50 / 0.28) 6px,
+      rgb(92 122 50 / 0.12) 6px,
+      rgb(92 122 50 / 0.12) 12px
+    );
+    color: var(--ink);
+    border-radius: 999px 0 0 999px;
+  }
+  .stages__bar--full {
+    background: var(--leaf);
+    color: #fff;
+    border-radius: 0 999px 999px 0;
+  }
+  .stages__bar--full:first-child {
+    border-radius: 999px;
+  }
+</style>
