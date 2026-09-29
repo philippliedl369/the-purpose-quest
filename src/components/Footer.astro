@@ -2,6 +2,7 @@
 import { localizedPath, type Lang } from '../i18n/config';
 import { ui } from '../i18n/ui';
 import { explorations } from '../content/site';
+import Logo from './Logo.astro';
 
 interface Props {
   lang: Lang;
@@ -14,7 +15,7 @@ const year = new Date().getFullYear();
 <footer class="site-footer band">
   <div class="container site-footer__inner">
     <div>
-      <p class="site-footer__name">The Purpose <em>Quest</em></p>
+      <p class="site-footer__name"><Logo class="site-footer__mark" /><span>The Purpose <em>Quest</em></span></p>
       <p class="muted small">{t.tagline}</p>
     </div>
     <ul class="small">
@@ -42,10 +43,18 @@ const year = new Date().getFullYear();
     grid-template-columns: 1fr;
   }
   .site-footer__name {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
     font-family: var(--font-display);
     font-size: 1.6rem;
     font-variation-settings: 'SOFT' 60;
     margin-bottom: 0.4rem;
+  }
+  .site-footer__name :global(.site-footer__mark) {
+    width: 3rem;
+    height: 3rem;
+    flex: none;
   }
   .site-footer__name em {
     font-style: italic;

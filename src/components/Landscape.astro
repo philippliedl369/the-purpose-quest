@@ -1,6 +1,8 @@
 ---
 // Decorative dry-season landscape: layered hills, flowering trees, garden rows and a pond.
 // Hills are generated from sine sums so trees sit exactly on the ridgelines.
+// The sun is the brand mark: seeds at the golden angle (src/lib/phyllotaxis.ts).
+import { sunSeeds } from '../lib/phyllotaxis';
 interface Props {
   variant?: 'day' | 'dusk';
   class?: string;
@@ -115,7 +117,11 @@ const glowId = `glow-${variant}`;
 
   <rect width={W} height={H} fill={`url(#${skyId})`}></rect>
   <circle cx={p.sunAt[0]} cy={p.sunAt[1]} r="200" fill={`url(#${glowId})`}></circle>
-  <circle cx={p.sunAt[0]} cy={p.sunAt[1]} r="66" fill={p.sun}></circle>
+  {
+    sunSeeds({ n: 110, radius: 64, dotMin: 0.04, dotMax: 0.078, cx: p.sunAt[0], cy: p.sunAt[1] }).map((s) => (
+      <circle cx={s.cx} cy={s.cy} r={s.r} fill={s.fill} />
+    ))
+  }
 
   <g fill="none" stroke={p.trunk} stroke-width="3" stroke-linecap="round" opacity="0.55">
     <path d="M318 290 q10 -8 20 0 q10 -8 20 0"></path>

@@ -20,7 +20,7 @@ Public website presenting projects, concepts and explorations. Independent from 
 - Dark "band" sections for featured content, structured data blocks with hairlines.
 - Charts are HTML/CSS or inline SVG components fed from `src/data/`, never images, so figures stay exact and editable.
 - Tokens live in `src/styles/global.css`; change values there, not in components.
-- The logo mark lives in `src/components/Logo.astro`; concepts are explored in `labs/` (not deployed).
+- Logo: the phyllotaxis sun (concept A, chosen 2026-09-28), seeds at the golden angle with a clay-to-bloom gradient. Geometry lives only in `src/lib/phyllotaxis.ts`; `Logo.astro` (header, footer), `/favicon.svg`, `/logo.svg` and the sun in `Landscape.astro` all derive from it. Presets: `mark` (28–64 px), `small` (favicon), `full` (large). It is a sibling of the Meristem mark, which uses the same golden-angle construction. Concepts remain in `labs/` (not deployed).
 - Check every page at 390 px and 1440 px width in all three languages; no horizontal page scroll.
 
 ## Links

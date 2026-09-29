@@ -1,12 +1,24 @@
 ---
-// The Purpose Quest mark. Placeholder until the sun logo is chosen (see labs/logo-lab.html).
+// The Purpose Quest mark: the phyllotaxis sun (concept A in labs/logo-lab.html).
+import { sunPresets, sunSeeds } from '../lib/phyllotaxis';
+
 interface Props {
   class?: string;
+  /** `mark` for 28–64 px, `small` below that, `full` for large display. */
+  variant?: keyof typeof sunPresets;
+  label?: string;
 }
-const { class: className } = Astro.props;
+const { class: className, variant = 'mark', label } = Astro.props;
+const seeds = sunSeeds(sunPresets[variant]);
 ---
 
-<svg class={className} viewBox="0 0 32 32" aria-hidden="true" focusable="false">
-  <circle cx="16" cy="12.5" r="5" fill="var(--bloom)"></circle>
-  <path d="M3 27c4.5-6 9-8.8 13-8.8S24.5 21 29 27z" fill="currentColor"></path>
+<svg
+  class={className}
+  viewBox="0 0 100 100"
+  role={label ? 'img' : undefined}
+  aria-label={label}
+  aria-hidden={label ? undefined : 'true'}
+  focusable="false"
+>
+  {seeds.map((s) => <circle cx={s.cx} cy={s.cy} r={s.r} fill={s.fill} />)}
 </svg>
