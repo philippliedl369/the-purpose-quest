@@ -1,32 +1,36 @@
 ---
 import Landscape from './Landscape.astro';
-import type { Project } from '../data/projects';
-import { url } from '../lib/url';
 
 interface Props {
-  project: Project;
+  href: string;
+  title: string;
+  summary: string;
+  badge: string;
+  place: string;
+  readLabel: string;
 }
-const { project } = Astro.props;
+const { href, title, summary, badge, place, readLabel } = Astro.props;
 ---
 
-<a class="card" href={url(`/projects/${project.slug}/`)}>
+<a class="card" href={href}>
   <div class="card__media">
     <Landscape class="card__art" />
   </div>
   <div class="card__body">
     <div class="card__meta">
-      <span class="badge">{project.status}</span>
-      <span class="small muted">{project.place}</span>
+      <span class="badge">{badge}</span>
+      <span class="small muted">{place}</span>
     </div>
-    <h3>{project.title}</h3>
-    <p class="muted">{project.summary}</p>
-    <span class="link-arrow">Read the project <span aria-hidden="true">→</span></span>
+    <h3>{title}</h3>
+    <p class="muted">{summary}</p>
+    <span class="link-arrow">{readLabel} <span aria-hidden="true">→</span></span>
   </div>
 </a>
 
 <style>
   .card {
     display: grid;
+    grid-template-rows: auto 1fr;
     background: var(--canvas);
     border: 1px solid var(--hairline);
     border-radius: var(--radius-lg);
@@ -44,7 +48,7 @@ const { project } = Astro.props;
     aspect-ratio: 16 / 9;
     background: var(--surface);
   }
-  .card__art {
+  .card__media :global(.card__art) {
     width: 100%;
     height: 100%;
   }

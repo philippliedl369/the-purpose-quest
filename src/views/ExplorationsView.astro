@@ -1,0 +1,51 @@
+---
+import Base from '../layouts/Base.astro';
+import ExplorationCard from '../components/ExplorationCard.astro';
+import { localizedPath, type Lang } from '../i18n/config';
+import { ui } from '../i18n/ui';
+import { explorations, site } from '../content/site';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = site[lang].explorationsPage;
+const u = ui[lang];
+---
+
+<Base lang={lang} path="/explorations/" title={t.meta.title} description={t.meta.description}>
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">{t.eyebrow}</p>
+        <h1 set:html={t.title} />
+        <p class="lede">{t.lede}</p>
+      </div>
+      <div class="cards">
+        {
+          explorations.map((e) => (
+            <ExplorationCard
+              href={localizedPath(lang, e.path)}
+              title={e.content[lang].card.title}
+              summary={e.content[lang].card.summary}
+              badge={u.exploration}
+              place={e.content[lang].card.place}
+              readLabel={u.readExploration}
+            />
+          ))
+        }
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  h1 :global(em) {
+    color: var(--clay);
+  }
+  .cards {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr));
+  }
+</style>

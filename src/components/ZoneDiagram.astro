@@ -1,5 +1,17 @@
 ---
-import { zones } from '../data/living-place';
+interface Zone {
+  id: string;
+  color: string;
+  name: string;
+  what: string;
+  water: string;
+  care: string;
+}
+interface Props {
+  zones: Zone[];
+  labels: { water: string; care: string; annotation: string; figureTitle: string; caption: string };
+}
+const { zones, labels } = Astro.props;
 
 // Concentric arcs around the houses: the further out, the less water and care a zone needs.
 const cx = 500;
@@ -12,13 +24,13 @@ const arc = (r: number) => `M${cx - r} ${cy} A${r} ${r} 0 0 1 ${cx + r} ${cy} Z`
   <div class="zones__grid">
     <div class="figure__frame zones__frame">
       <svg viewBox="0 0 1000 490" role="img" aria-labelledby="zones-title">
-        <title id="zones-title">Zones ordered by dry-season water, from the houses outward</title>
+        <title id="zones-title">{labels.figureTitle}</title>
         {
           [...zones].reverse().map((z, i) => (
             <path d={arc(radii[zones.length - 1 - i])} fill={z.color} />
           ))
         }
-        {zones.map((z, i) => {
+        {zones.map((_, i) => {
           const r = radii[i];
           const inner = i === 0 ? 0 : radii[i - 1];
           const labelR = (r + inner) / 2;
@@ -41,7 +53,7 @@ const arc = (r: number) => `M${cx - r} ${cy} A${r} ${r} 0 0 1 ${cx + r} ${cy} Z`
         <line x1="40" x2="960" y1={cy} y2={cy} class="zones__ground" />
         <g class="zones__water">
           <path d="M24 34 q13 -22 26 0 a13 13 0 1 1 -26 0z" />
-          <text x="62" y="44">Outward: less water, less care</text>
+          <text x="62" y="44">{labels.annotation}</text>
         </g>
       </svg>
     </div>
@@ -57,11 +69,11 @@ const arc = (r: number) => `M${cx - r} ${cy} A${r} ${r} 0 0 1 ${cx + r} ${cy} Z`
               <p>{z.what}</p>
               <dl>
                 <div>
-                  <dt>Water</dt>
+                  <dt>{labels.water}</dt>
                   <dd>{z.water}</dd>
                 </div>
                 <div>
-                  <dt>Care</dt>
+                  <dt>{labels.care}</dt>
                   <dd>{z.care}</dd>
                 </div>
               </dl>
@@ -71,10 +83,7 @@ const arc = (r: number) => `M${cx - r} ${cy} A${r} ${r} 0 0 1 ${cx + r} ${cy} Z`
       }
     </ol>
   </div>
-  <figcaption>
-    A design proposal, not a plan for a specific site. The size of each zone depends on how much water is left at the
-    end of the dry season and how much open land may legally be farmed. <span class="estimate">Estimate</span>
-  </figcaption>
+  <figcaption>{labels.caption}</figcaption>
 </figure>
 
 <style>
@@ -167,7 +176,7 @@ const arc = (r: number) => `M${cx - r} ${cy} A${r} ${r} 0 0 1 ${cx + r} ${cy} Z`
   }
   dl div {
     display: grid;
-    grid-template-columns: 3.5rem 1fr;
+    grid-template-columns: 4.25rem 1fr;
     gap: 0.5rem;
   }
   dt {

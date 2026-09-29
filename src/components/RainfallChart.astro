@@ -1,7 +1,19 @@
 ---
-import { rainfall } from '../data/living-place';
+import { formatNumber, type Lang } from '../i18n/config';
 
-const rows = [...rainfall].sort((a, b) => a.mm - b.mm);
+interface Row {
+  region: string;
+  mm: number;
+  dryMonths: number;
+  side: 'dry' | 'humid';
+}
+interface Props {
+  lang: Lang;
+  rows: Row[];
+  labels: { dryMonths: (n: number) => string; noDry: string; legendDry: string; legendHumid: string; caption: string };
+}
+const { lang, rows, labels } = Astro.props;
+const sorted = [...rows].sort((a, b) => a.mm - b.mm);
 const max = 3200;
 // The bar shares its row with the value label, so it scales within the remaining width.
 const barWidth = (mm: number) => `calc((100% - 6rem) * ${(mm / max).toFixed(3)})`;
@@ -11,31 +23,26 @@ const barWidth = (mm: number) => `calc((100% - 6rem) * ${(mm / max).toFixed(3)})
   <div class="figure__frame">
     <ul class="rain__list" role="list">
       {
-        rows.map((r) => (
+        sorted.map((r) => (
           <li class={`rain__row rain__row--${r.side}`}>
             <div class="rain__label">
               <span class="rain__region">{r.region}</span>
-              <span class="rain__dry num">
-                {r.dryMonths === 0 ? 'no dry season' : `${r.dryMonths} dry months`}
-              </span>
+              <span class="rain__dry num">{r.dryMonths === 0 ? labels.noDry : labels.dryMonths(r.dryMonths)}</span>
             </div>
             <div class="rain__track">
-              <span class="rain__bar" style={`width:${barWidth(r.mm)}`}></span>
-              <span class="rain__value num">{r.mm.toLocaleString('en-US')} mm</span>
+              <span class="rain__bar" style={`width:${barWidth(r.mm)}`} />
+              <span class="rain__value num">{formatNumber(lang, r.mm)} mm</span>
             </div>
           </li>
         ))
       }
     </ul>
     <div class="rain__legend small" aria-hidden="true">
-      <span><i class="rain__key rain__key--dry"></i> Dry Pacific</span>
-      <span><i class="rain__key rain__key--humid"></i> Humid inland</span>
+      <span><i class="rain__key rain__key--dry"></i> {labels.legendDry}</span>
+      <span><i class="rain__key rain__key--humid"></i> {labels.legendHumid}</span>
     </div>
   </div>
-  <figcaption>
-    Annual rainfall and dry months by climate region, from Costa Rica’s national weather service IMN (high
-    confidence). What separates the regions is less the annual total than the length of the dry season.
-  </figcaption>
+  <figcaption>{labels.caption}</figcaption>
 </figure>
 
 <style>
@@ -96,7 +103,8 @@ const barWidth = (mm: number) => `calc((100% - 6rem) * ${(mm / max).toFixed(3)})
   }
   .rain__legend {
     display: flex;
-    gap: 1.5rem;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
     margin-top: 1.5rem;
     color: var(--on-band-muted);
   }

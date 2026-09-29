@@ -11,6 +11,7 @@ npm install
 npm run dev       # http://localhost:4321/the-purpose-quest/
 npm run build     # static output in dist/
 npm run preview   # serve the build locally
+npm run check     # type check
 ```
 
 Requires Node 22.12 or newer.
@@ -19,18 +20,24 @@ Requires Node 22.12 or newer.
 
 ```
 src/
+  i18n/                  languages, routing helpers, interface strings
+  content/               page texts per language (site.ts, agroecology/{en,de,es}.ts)
+  data/                  language-neutral figures and chart data
   styles/global.css      design tokens and shared styles
-  layouts/Base.astro     page shell: fonts, meta, header, footer
-  components/            header, footer, landscape illustration, charts
-  data/projects.ts       project index
-  data/living-place.ts   figures and chart data for the Costa Rica project
-  pages/                 one file per route
+  layouts/Base.astro     page shell: fonts, meta, hreflang, header, footer
+  components/            header, footer, logo, landscape illustration, charts
+  views/                 page bodies shared by all languages
+  pages/                 routes: English at the root, German and Spanish under [lang]/
+labs/                    design explorations, not deployed (logo concepts)
 ```
 
-## Adding a project
+English is served at `/`, German at `/de/`, Spanish at `/es/`.
 
-1. Add an entry to `src/data/projects.ts`.
-2. Create `src/pages/projects/<slug>.astro`, using the Costa Rica page as a template.
+## Adding an exploration
+
+1. Write the texts in `src/content/<topic>/{en,de,es}.ts` and any figures in `src/data/`.
+2. Create a view in `src/views/` and two routes: `src/pages/explorations/<slug>.astro` and `src/pages/[lang]/explorations/<slug>.astro`.
+3. Register it in `explorations` in `src/content/site.ts` so it appears on the home page, the index and in the footer.
 
 ## Deployment
 

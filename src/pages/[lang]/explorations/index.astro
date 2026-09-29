@@ -1,0 +1,11 @@
+---
+import ExplorationsView from '../../../views/ExplorationsView.astro';
+import { localizedParams, type Lang } from '../../../i18n/config';
+
+export function getStaticPaths() {
+  return localizedParams();
+}
+const lang = Astro.params.lang as Lang;
+---
+
+<ExplorationsView lang={lang} />

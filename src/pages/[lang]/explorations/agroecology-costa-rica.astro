@@ -1,0 +1,11 @@
+---
+import AgroecologyView from '../../../views/AgroecologyView.astro';
+import { localizedParams, type Lang } from '../../../i18n/config';
+
+export function getStaticPaths() {
+  return localizedParams();
+}
+const lang = Astro.params.lang as Lang;
+---
+
+<AgroecologyView lang={lang} />

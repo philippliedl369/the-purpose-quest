@@ -1,5 +1,16 @@
 ---
-import { stages } from '../data/living-place';
+interface Row {
+  label: string;
+  partial: readonly [number, number] | null;
+  full: readonly [number, number] | null;
+  partialNote?: string;
+  fullNote?: string;
+}
+interface Props {
+  rows: Row[];
+  labels: { year: string; caption: string };
+}
+const { rows, labels } = Astro.props;
 
 const years = Array.from({ length: 11 }, (_, i) => i);
 const pos = (y: number) => `${(y / 10) * 100}%`;
@@ -10,38 +21,41 @@ const span = ([a, b]: readonly [number, number]) => `left:${pos(a)};width:${((b 
   <div class="figure__frame">
     <div class="stages__inner">
       <div class="stages__axis" aria-hidden="true">
-        <span class="stages__axis-label">Year</span>
+        <span class="stages__axis-label">{labels.year}</span>
         <div class="stages__ticks">
-          {years.map((y) => <span style={`left:${pos(y)}`}>{y}</span>)}
+          {years.map((y) => <span style={`left:${pos(y)}`}>{y === 10 ? '10+' : y}</span>)}
         </div>
       </div>
       <ul class="stages__list" role="list">
         {
-          stages.map((s) => (
+          rows.map((r) => (
             <li class="stages__row">
               <div class="stages__label">
-                <strong>{s.label}</strong>
-                {s.estimate && <span class="estimate">Estimate</span>}
+                <strong>{r.label}</strong>
               </div>
               <div class="stages__track">
-                {s.partial && (
-                  <span class="stages__bar stages__bar--partial" style={span(s.partial)}>
-                    <span>{s.partialNote}</span>
+                {r.partial && (
+                  <span class="stages__bar stages__bar--partial" style={span(r.partial)}>
+                    <span>{r.partialNote}</span>
                   </span>
                 )}
-                <span class="stages__bar stages__bar--full" style={span(s.full)}>
-                  <span>{s.fullNote}</span>
-                </span>
+                {r.full && (
+                  <span class="stages__bar stages__bar--full" style={span(r.full)}>
+                    <span>{r.fullNote}</span>
+                  </span>
+                )}
               </div>
               <p class="stages__notes">
-                {s.partial && (
+                {r.partial && r.partialNote && (
                   <span>
-                    <i class="stages__key stages__key--partial" aria-hidden="true" /> Years {s.partial[0]}–{s.partial[1]}: {s.partialNote}
+                    <i class="stages__key stages__key--partial" aria-hidden="true" /> {r.partialNote}
                   </span>
                 )}
-                <span>
-                  <i class="stages__key stages__key--full" aria-hidden="true" /> From year {s.full[0]}: {s.fullNote}
-                </span>
+                {r.full && r.fullNote && (
+                  <span>
+                    <i class="stages__key stages__key--full" aria-hidden="true" /> {r.fullNote}
+                  </span>
+                )}
               </p>
             </li>
           ))
@@ -49,10 +63,7 @@ const span = ([a, b]: readonly [number, number]) => `left:${pos(a)};width:${((b 
       </ul>
     </div>
   </div>
-  <figcaption>
-    Years after the first planting. Harvest times are general values for each species, not measurements from a
-    specific site. Staple foods (maize, beans, roots) depend most on how much open land a site offers.
-  </figcaption>
+  <figcaption>{labels.caption}</figcaption>
 </figure>
 
 <style>
@@ -185,7 +196,7 @@ const span = ([a, b]: readonly [number, number]) => `left:${pos(a)};width:${((b 
     color: #fff;
     border-radius: 0 999px 999px 0;
   }
-  .stages__bar--full:first-child {
+  .stages__bar:only-child {
     border-radius: 999px;
   }
 </style>

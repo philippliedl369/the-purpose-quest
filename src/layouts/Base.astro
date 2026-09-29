@@ -6,29 +6,33 @@ import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { url } from '../lib/url';
+import { absoluteUrl, defaultLang, langs, type Lang } from '../i18n/config';
+import { ui } from '../i18n/ui';
 
 interface Props {
+  lang: Lang;
+  /** Language-neutral path of this page, e.g. '/explorations/'. */
+  path: string;
   title?: string;
   description?: string;
 }
 
 const siteName = 'The Purpose Quest';
-const {
-  title,
-  description = 'Projects and concepts, researched carefully and designed to be beautiful.',
-} = Astro.props;
+const { lang, path, title, description = ui[lang].tagline } = Astro.props;
 const fullTitle = title ? `${title} — ${siteName}` : siteName;
-const canonical = new URL(Astro.url.pathname, Astro.site);
+const canonical = absoluteUrl(Astro.site, lang, path);
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={lang}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    {langs.map((l) => <link rel="alternate" hreflang={l} href={absoluteUrl(Astro.site, l, path)} />)}
+    <link rel="alternate" hreflang="x-default" href={absoluteUrl(Astro.site, defaultLang, path)} />
     <link rel="icon" type="image/svg+xml" href={url('/favicon.svg')} />
     <meta name="theme-color" content="#f4eee2" />
     <meta property="og:title" content={fullTitle} />
@@ -37,11 +41,11 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta property="og:url" content={canonical} />
   </head>
   <body>
-    <a class="skip-link" href="#main">Skip to content</a>
-    <Header />
+    <a class="skip-link" href="#main">{ui[lang].skip}</a>
+    <Header lang={lang} path={path} />
     <main id="main">
       <slot />
     </main>
-    <Footer />
+    <Footer lang={lang} />
   </body>
 </html>

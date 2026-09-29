@@ -1,6 +1,13 @@
 ---
-import { url } from '../lib/url';
+import { localizedPath, type Lang } from '../i18n/config';
+import { ui } from '../i18n/ui';
+import { explorations } from '../content/site';
 
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = ui[lang];
 const year = new Date().getFullYear();
 ---
 
@@ -8,11 +15,17 @@ const year = new Date().getFullYear();
   <div class="container site-footer__inner">
     <div>
       <p class="site-footer__name">The Purpose <em>Quest</em></p>
-      <p class="muted small">Projects and concepts, researched carefully and designed to be beautiful.</p>
+      <p class="muted small">{t.tagline}</p>
     </div>
     <ul class="small">
-      <li><a href={url('/projects/')}>Projects</a></li>
-      <li><a href={url('/projects/living-place-costa-rica/')}>A Living Place in Costa Rica</a></li>
+      <li><a href={localizedPath(lang, '/explorations/')}>{t.nav.explorations}</a></li>
+      {
+        explorations.map((e) => (
+          <li>
+            <a href={localizedPath(lang, e.path)}>{e.content[lang].card.title}</a>
+          </li>
+        ))
+      }
     </ul>
     <p class="muted small site-footer__legal">© {year} The Purpose Quest</p>
   </div>

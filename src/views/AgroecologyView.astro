@@ -1,0 +1,531 @@
+---
+import Base from '../layouts/Base.astro';
+import Landscape from '../components/Landscape.astro';
+import RainfallChart from '../components/RainfallChart.astro';
+import ZoneDiagram from '../components/ZoneDiagram.astro';
+import BloomCalendar from '../components/BloomCalendar.astro';
+import GrowthTimeline from '../components/GrowthTimeline.astro';
+import type { Lang } from '../i18n/config';
+import { ui } from '../i18n/ui';
+import { agroecology, agroecologySlug } from '../content/agroecology';
+import { avoid, growth, rainfall, zones } from '../data/agroecology';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const c = agroecology[lang];
+const u = ui[lang];
+
+const rainRows = rainfall.map((r) => ({ ...r, region: c.climate.regions[r.id] }));
+const zoneRows = zones.map((z) => ({ ...z, ...c.zones.items[z.id] }));
+const growthRows = growth.map((g) => ({ ...g, ...c.growth.rows[g.id] }));
+const avoidRows = avoid.map((a) => ({ ...a, ...c.avoid.items[a.id] }));
+---
+
+<Base lang={lang} path={agroecologySlug} title={c.meta.title} description={c.meta.description}>
+  <section class="hero">
+    <div class="container hero__text">
+      <p class="eyebrow">{c.hero.eyebrow}</p>
+      <h1 class="display" set:html={c.hero.title} />
+      <p class="lede">{c.hero.lede}</p>
+    </div>
+    <div class="hero__art">
+      <Landscape />
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="intro">
+    <div class="container intro">
+      <div class="section-head">
+        <p class="eyebrow">{c.intro.eyebrow}</p>
+        <h2 id="intro" set:html={c.intro.title} />
+      </div>
+      <div class="prose">
+        <p>{c.intro.text}</p>
+      </div>
+      <div class="facts">
+        {
+          c.intro.facts.map((fact) => (
+            <div class="fact">
+              <div class="fact__value">{fact.value}</div>
+              <div class="fact__label">{fact.label}</div>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="principles">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">{c.principles.eyebrow}</p>
+        <h2 id="principles" set:html={c.principles.title} />
+      </div>
+      <ol class="principles">
+        {
+          c.principles.items.map((p, i) => (
+            <li>
+              <span class="principles__n">{String(i + 1).padStart(2, '0')}</span>
+              <h3>{p.title}</h3>
+              <p>{p.text}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="band section climate" aria-labelledby="climate">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">{c.climate.eyebrow}</p>
+        <h2 id="climate" set:html={c.climate.title} />
+        <p class="lede">{c.climate.lede}</p>
+      </div>
+      <div class="climate__grid">
+        <RainfallChart lang={lang} rows={rainRows} labels={c.climate} />
+        <div class="climate__compare">
+          <div>
+            <h3>{c.climate.dry.title}</h3>
+            <p>{c.climate.dry.text}</p>
+          </div>
+          <div>
+            <h3>{c.climate.humid.title}</h3>
+            <p>{c.climate.humid.text}</p>
+          </div>
+          <blockquote class="climate__quote">
+            <p>{c.climate.quote}</p>
+            <footer>{c.climate.quoteLabel}</footer>
+          </blockquote>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="techniques">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">{c.techniques.eyebrow}</p>
+        <h2 id="techniques" set:html={c.techniques.title} />
+        <p class="lede">{c.techniques.lede}</p>
+      </div>
+      <ul class="techniques" role="list">
+        {
+          c.techniques.items.map((t) => (
+            <li>
+              <p class="techniques__stat num">{t.stat}</p>
+              <p class="techniques__stat-label">{t.statLabel}</p>
+              <h3>{t.title}</h3>
+              <p class="techniques__text">{t.text}</p>
+              <p class="techniques__source">
+                {u.source}: {t.source}
+              </p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section band--soft" aria-labelledby="zones">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">{c.zones.eyebrow}</p>
+        <h2 id="zones" set:html={c.zones.title} />
+        <p class="lede">{c.zones.lede}</p>
+      </div>
+      <ZoneDiagram zones={zoneRows} labels={c.zones.labels} />
+    </div>
+  </section>
+
+  <section class="section bloom" aria-labelledby="bloom">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">{c.bloom.eyebrow}</p>
+        <h2 id="bloom" set:html={c.bloom.title} />
+        <p class="lede">{c.bloom.lede}</p>
+      </div>
+      <BloomCalendar months={u.months} monthNames={u.monthNames} labels={c.bloom} />
+    </div>
+  </section>
+
+  <section class="section band--soft" aria-labelledby="animals">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">{c.animals.eyebrow}</p>
+        <h2 id="animals" set:html={c.animals.title} />
+        <p class="lede">{c.animals.lede}</p>
+      </div>
+      <ol class="animals">
+        {
+          c.animals.items.map((a) => (
+            <li>
+              <span class="animals__when">{a.when}</span>
+              <h3>{a.title}</h3>
+              <p>{a.text}</p>
+            </li>
+          ))
+        }
+      </ol>
+      <div class="wild">
+        <h3>{c.animals.wildTitle}</h3>
+        <ul class="wild__list">
+          {c.animals.wild.map((w) => <li set:html={w} />)}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="avoid">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">{c.avoid.eyebrow}</p>
+        <h2 id="avoid" set:html={c.avoid.title} />
+        <p class="lede">{c.avoid.lede}</p>
+      </div>
+      <ul class="avoid">
+        {
+          avoidRows.map((a) => (
+            <li>
+              <span class="avoid__why">{a.why}</span>
+              <h3>{a.name}</h3>
+              <p class="avoid__latin">{a.latin}</p>
+              {a.instead && (
+                <p class="avoid__instead">
+                  <span>{u.instead}</span> {a.instead}
+                </p>
+              )}
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section band--soft" aria-labelledby="growth">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">{c.growth.eyebrow}</p>
+        <h2 id="growth" set:html={c.growth.title} />
+        <p class="lede">{c.growth.lede}</p>
+      </div>
+      <GrowthTimeline rows={growthRows} labels={c.growth} />
+    </div>
+  </section>
+
+  <section class="band section" aria-labelledby="open">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">{c.open.eyebrow}</p>
+        <h2 id="open" set:html={c.open.title} />
+      </div>
+      <ol class="next">
+        {
+          c.open.items.map((q) => (
+            <li>
+              <h3>{q.title}</h3>
+              <p>{q.text}</p>
+            </li>
+          ))
+        }
+      </ol>
+      <p class="source sources-note">{c.open.sources}</p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .hero {
+    padding-top: clamp(3.5rem, 2rem + 6vw, 7.5rem);
+  }
+  .hero__text {
+    display: grid;
+    gap: 1.5rem;
+  }
+  .hero__text .display {
+    max-width: 15ch;
+    color: var(--forest);
+  }
+  .hero__art {
+    margin-top: clamp(2.5rem, 1.5rem + 4vw, 4.5rem);
+    height: clamp(260px, 38vw, 560px);
+    overflow: hidden;
+  }
+  .hero__art :global(svg) {
+    width: 100%;
+    height: 100%;
+  }
+  h1 :global(em),
+  h2 :global(em) {
+    color: var(--clay);
+  }
+  .band h2 :global(em) {
+    color: var(--bloom);
+  }
+
+  .intro .prose {
+    margin-bottom: 2.5rem;
+  }
+  .intro .prose p {
+    font-size: var(--text-lede);
+    line-height: 1.55;
+  }
+
+  .principles {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    column-gap: 3rem;
+    border-top: 1px solid var(--hairline-strong);
+  }
+  @media (min-width: 800px) {
+    .principles {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .principles li {
+    padding: 1.75rem 2rem 2.25rem 0;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .principles__n {
+    display: block;
+    font-family: var(--font-display);
+    color: var(--clay);
+    margin-bottom: 1rem;
+  }
+  .principles h3 {
+    font-size: clamp(1.4rem, 1.2rem + 0.8vw, 1.8rem);
+    margin-bottom: 0.6rem;
+  }
+  .principles p {
+    color: var(--ink-muted);
+    margin: 0;
+    max-width: 34rem;
+  }
+
+  .climate__grid {
+    display: grid;
+    gap: clamp(2rem, 1rem + 3vw, 4rem);
+  }
+  @media (min-width: 1000px) {
+    .climate__grid {
+      grid-template-columns: 1.35fr 1fr;
+      align-items: start;
+    }
+  }
+  .climate__compare {
+    display: grid;
+    gap: 1.75rem;
+  }
+  .climate__compare h3 {
+    margin-bottom: 0.4rem;
+  }
+  .climate__compare p {
+    color: var(--on-band-muted);
+    margin: 0;
+  }
+  .climate__quote {
+    margin: 0.5rem 0 0;
+    padding: 1.5rem 0 0;
+    border-top: 1px solid var(--bloom);
+  }
+  .climate__quote p {
+    font-family: var(--font-display);
+    font-size: clamp(1.3rem, 1.1rem + 0.8vw, 1.7rem);
+    line-height: 1.3;
+    color: var(--on-band);
+    font-variation-settings: 'SOFT' 80;
+  }
+  .climate__quote footer {
+    margin-top: 0.75rem;
+    font-size: var(--text-label);
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--bloom);
+  }
+
+  .techniques {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+    border-top: 1px solid var(--hairline-strong);
+    column-gap: 2.5rem;
+  }
+  .techniques li {
+    display: flex;
+    flex-direction: column;
+    padding: 1.75rem 0 2rem;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .techniques__stat {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(1.9rem, 1.55rem + 1.2vw, 2.5rem);
+    font-weight: 360;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--forest);
+    font-variant-numeric: lining-nums;
+  }
+  .techniques__stat-label {
+    margin: 0.35rem 0 1.25rem;
+    font-size: var(--text-small);
+    color: var(--leaf);
+    font-weight: 550;
+  }
+  .techniques h3 {
+    margin-bottom: 0.5rem;
+  }
+  .techniques__text {
+    color: var(--ink-muted);
+    margin-bottom: 1rem;
+  }
+  .techniques__source {
+    margin: auto 0 0;
+    font-size: 0.8rem;
+    color: var(--ink-subtle);
+  }
+
+  .animals {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 13.5rem), 1fr));
+    gap: 1rem;
+  }
+  .animals li {
+    padding: 1.5rem;
+    background: var(--canvas);
+    border-radius: var(--radius-lg);
+  }
+  .animals__when {
+    display: inline-block;
+    margin-bottom: 0.9rem;
+    font-size: var(--text-label);
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--leaf);
+  }
+  .animals h3 {
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+  }
+  .animals p {
+    font-size: var(--text-small);
+    color: var(--ink-muted);
+    margin: 0;
+  }
+  .wild {
+    margin-top: clamp(2.5rem, 2rem + 2vw, 3.5rem);
+    padding-top: 1.75rem;
+    border-top: 1px solid var(--hairline-strong);
+    display: grid;
+    gap: 1.25rem;
+  }
+  @media (min-width: 900px) {
+    .wild {
+      grid-template-columns: 14rem 1fr;
+    }
+  }
+  .wild__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.9rem 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+    color: var(--ink-muted);
+  }
+  .wild__list :global(strong) {
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-weight: 450;
+    font-size: 1.15rem;
+  }
+
+  .avoid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
+    gap: 1rem;
+  }
+  .avoid li {
+    padding: 1.4rem 1.5rem 1.5rem;
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+  }
+  .avoid__why {
+    display: inline-block;
+    margin-bottom: 0.8rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--clay);
+  }
+  .avoid h3 {
+    font-size: 1.3rem;
+  }
+  .avoid__latin {
+    margin: 0.2rem 0 0;
+    font-style: italic;
+    font-size: var(--text-small);
+    color: var(--ink-subtle);
+  }
+  .avoid__instead {
+    margin: 0.9rem 0 0;
+    padding-top: 0.8rem;
+    border-top: 1px solid var(--hairline);
+    font-size: var(--text-small);
+    color: var(--ink-muted);
+  }
+  .avoid__instead span {
+    font-weight: 600;
+    color: var(--leaf);
+    margin-right: 0.25rem;
+  }
+
+  .next {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+    border-top: 1px solid var(--on-band);
+    counter-reset: q;
+  }
+  .next li {
+    counter-increment: q;
+    padding: 1.5rem 1.75rem 2rem 0;
+    border-bottom: 1px solid rgb(244 238 226 / 0.18);
+  }
+  .next li::before {
+    content: counter(q, decimal-leading-zero);
+    display: block;
+    font-family: var(--font-display);
+    color: var(--bloom);
+    margin-bottom: 1rem;
+  }
+  .next h3 {
+    margin-bottom: 0.5rem;
+  }
+  .next p {
+    color: var(--on-band-muted);
+    margin: 0;
+    font-size: var(--text-small);
+  }
+  .sources-note {
+    margin-top: 3rem;
+  }
+</style>

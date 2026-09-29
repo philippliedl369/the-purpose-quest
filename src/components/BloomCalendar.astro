@@ -1,7 +1,12 @@
 ---
-import { blooms, months, drySeason } from '../data/living-place';
+import { blooms, drySeason } from '../data/agroecology';
 
-const monthNames = ['November', 'December', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October'];
+interface Props {
+  months: string[];
+  monthNames: string[];
+  labels: { season: string; flowers: (from: string, to: string) => string; caption: string };
+}
+const { months, monthNames, labels } = Astro.props;
 // Grid columns are 1-based; a bar from month index a to b spans columns a+1 to b+2.
 const cols = (from: number, to: number) => `grid-column:${from + 1} / ${to + 2}`;
 ---
@@ -12,7 +17,7 @@ const cols = (from: number, to: number) => `grid-column:${from + 1} / ${to + 2}`
       <div class="cal__row cal__row--head" aria-hidden="true">
         <span class="cal__name"></span>
         <div class="cal__track cal__track--head">
-          <span class="cal__season" style={cols(drySeason.from, drySeason.to)}>Dry season</span>
+          <span class="cal__season" style={cols(drySeason.from, drySeason.to)}>{labels.season}</span>
           {
             months.map((m, i) => (
               <span class="cal__month" style={`grid-column:${i + 1}`}>
@@ -34,9 +39,7 @@ const cols = (from: number, to: number) => `grid-column:${from + 1} / ${to + 2}`
               <div class="cal__track">
                 <span class="cal__dry" style={cols(drySeason.from, drySeason.to)} aria-hidden="true" />
                 <span class="cal__bar" style={`${cols(b.from, b.to)};background:${b.color}`} aria-hidden="true" />
-                <span class="visually-hidden">
-                  flowers from {monthNames[b.from]} to {monthNames[b.to]}
-                </span>
+                <span class="visually-hidden">{labels.flowers(monthNames[b.from], monthNames[b.to])}</span>
               </div>
             </li>
           ))
@@ -44,11 +47,7 @@ const cols = (from: number, to: number) => `grid-column:${from + 1} / ${to + 2}`
       </ul>
     </div>
   </div>
-  <figcaption>
-    Flowering months from the Costa Rica Tree Atlas and the Área de Conservación Guanacaste, poró from iNaturalist
-    flowering records (medium confidence). Cortez amarillo opens all at once, about nine days after a cool day or a
-    rain in the dry season, and the flowers last only four to five days.
-  </figcaption>
+  <figcaption>{labels.caption}</figcaption>
 </figure>
 
 <style>
